@@ -14,24 +14,17 @@ methods = ["Gurobi", "Gurobi_Cal", "DRS"]
 method = methods[1]
 
 # Mixed parameters
-problem_folder = "P123_P1Sym"
-problems = ["P123", "P1Sym"]
-problem = problems[2]
+problems = ["P1Sym"]
+problem = problems[1]
 epsilon = 10^(-5)
 eps_abs = epsilon
 eps_rel = 10^(-3)
-fixed_tol = true
+fixed_tol = false
 eps_opt = epsilon
 time_limit = 7200
 
 # Gurobi parameters
-constraints_set_P123 = [["P1", "P123", "P3"], ["P13R", "P123"], ["PLS", "P123"], ["PLSr"]]
-constraints_P123 = constraints_set_P123[1]
-
-constraints_set_P1Sym = [["P1", "Sym"], ["P1Sym"]]
-constraints_P1Sym = constraints_set_P1Sym[1]
-
-constraints_set = [constraints_P123, constraints_P1Sym]
+constraints_set = [["P1", "Sym"], ["P1Sym"]]
 constraints = constraints_set[2]
 
 # DRS parameters
@@ -40,28 +33,28 @@ lambda = 10^(-2)
 stop_crits = ["Opt", "Fixed_Point"]
 stop_crit = stop_crits[2]
 
-matrices_folder = "./instances/rectangular_sparse"
-m_values = vcat([120 * i for i in 1:4], [600 * i for i in 1:10])
+matrices_folder = "./instances/table_1"
+m_values = [20 * i for i in 1:4]
 
-results_folder = "results/problem_$problem_folder"
+results_folder = "results/table_1"
 
-solutions_folder = "./solutions/problem_$problem_folder"
+solutions_folder = "./solutions/table_1"
 
 df = DataFrame()
 
-norm_0_list = []
-norm_1_list = []
-rank_list = []
+bound_ratio_list = []
+norm_0_ratio_list = []
+norm_1_ratio_list = []
+rank_ratio_list = []
 time_list = []
 
-d = 10
-idx = 0
+d = 100
 max_idx = 5
 min_unsolvable_m = Inf
 
 for m in m_values
     for idx in 1:max_idx
-        n = Int(m / 3)
+        n = m
         r = Int(m / 4)
         mat_file = "A_m$(m)_n$(n)_r$(r)_d$(d)_idx$(idx).mat"
 
@@ -72,23 +65,16 @@ for m in m_values
         
         A = mat_data["A"]
         A = Matrix(A)
+        A = A' * A
+        AMP = pinv(A)
+        bound = r^2 + r
 
-        AMP = 0
-        data = 0
+        data = DataInst(A, m, n, r, AMP=AMP)
 
-        if problem == "P123"
-            AMP = pinv(A)
-            data = DataInst(A, m, n, r, AMP=AMP)
-        elseif problem == "P1Sym"
-            A = A' * A
-            mA, nA = size(A)
-            AMP = pinv(A)
-            data = DataInst(A, mA, nA, r, AMP=AMP)
-        end
-
-        norm_0 = -1.0
-        norm_1 = -1.0
-        rank = -1.0
+        bound_ratio = -1.0
+        norm_0_ratio = -1.0
+        norm_1_ratio = -1.0
+        rank_ratio = -1.0
         time = -1.0
         if (m < min_unsolvable_m)
             if method == "Gurobi"
@@ -96,9 +82,14 @@ for m in m_values
                     time = @elapsed begin
                         H = gurobi_solver(data, constraints, eps_opt, time_limit)
                     end
-                    norm_0 = matrix_norm_0(H)
-                    norm_1 = norm(H, 1)
-                    rank = calculate_rank(H)
+                    H_norm_0 = matrix_norm_0(H)
+                    H_norm_1 = norm(H, 1)
+                    H_rank = calculate_rank(H)
+
+                    bound_ratio = H_norm_0 / bound
+                    norm_0_ratio = H_norm_0 / matrix_norm_0(AMP)
+                    norm_1_ratio = H_norm_1 / norm(AMP, 1)
+                    rank_ratio = H_rank / r
 
                     problem_label = join(constraints, "_")
 
@@ -117,9 +108,14 @@ for m in m_values
                     time = @elapsed begin
                         H = gurobi_solver_cal(data, problem, eps_opt, time_limit)
                     end
-                    norm_0 = matrix_norm_0(H)
-                    norm_1 = norm(H, 1)
-                    rank = calculate_rank(H)
+                    H_norm_0 = matrix_norm_0(H)
+                    H_norm_1 = norm(H, 1)
+                    H_rank = calculate_rank(H)
+
+                    bound_ratio = H_norm_0 / bound
+                    norm_0_ratio = H_norm_0 / matrix_norm_0(AMP)
+                    norm_1_ratio = H_norm_1 / norm(AMP, 1)
+                    rank_ratio = H_rank / r
 
                     solution_filename = "Gurobi_Cal/problem_$(problem)_m_$(m)_n_$(n)_d_$(d)_idx_$(idx)"
                     solution_filepath = joinpath(solutions_folder, solution_filename)
@@ -138,9 +134,14 @@ for m in m_values
                 if H == "-"
                     global min_unsolvable_m = min(m, min_unsolvable_m)
                 else
-                    norm_0 = matrix_norm_0(H)
-                    norm_1 = norm(H, 1)
-                    rank = calculate_rank(H)
+                    H_norm_0 = matrix_norm_0(H)
+                    H_norm_1 = norm(H, 1)
+                    H_rank = calculate_rank(H)
+
+                    bound_ratio = H_norm_0 / bound
+                    norm_0_ratio = H_norm_0 / matrix_norm_0(AMP)
+                    norm_1_ratio = H_norm_1 / norm(AMP, 1)
+                    rank_ratio = H_rank / r
 
                     if fixed_tol && stop_crit == "Opt"
                         solution_filename = "DRS_Opt_Eps/problem_$(problem)_m_$(m)_n_$(n)_d_$(d)_idx_$(idx)"
@@ -165,23 +166,26 @@ for m in m_values
             end
         end
 
-        push!(norm_0_list, norm_0)
-        push!(norm_1_list, norm_1)
-        push!(rank_list, rank)
+        push!(bound_ratio_list, bound_ratio)
+        push!(norm_0_ratio_list, norm_0_ratio)
+        push!(norm_1_ratio_list, norm_1_ratio)
+        push!(rank_ratio_list, rank_ratio)
         push!(time_list, time)
 
         GC.gc()
 
         if idx == max_idx
-            norm_0_mean = -1.0
-            norm_1_mean = -1.0
-            rank_mean = -1.0
+            bound_ratio_mean = -1.0
+            norm_0_ratio_mean = -1.0
+            norm_1_ratio_mean = -1.0
+            rank_ratio_mean = -1.0
             time_mean = -1.0
 
-            if !(-1.0 in norm_0_list)
-                norm_0_mean = mean(norm_0_list)
-                norm_1_mean = mean(norm_1_list)
-                rank_mean = mean(rank_list)
+            if !(-1.0 in bound_ratio_list)
+                bound_ratio_mean = mean(bound_ratio_list)
+                norm_0_ratio_mean = mean(norm_0_ratio_list)
+                norm_1_ratio_mean = mean(norm_1_ratio_list)
+                rank_ratio_mean = mean(rank_ratio_list)
                 time_mean = mean(time_list)
             end
 
@@ -190,17 +194,19 @@ for m in m_values
                 n = [n],
                 r = [r],
                 d = [d],
-                norm_0_mean = [norm_0_mean],
-                norm_1_mean = [norm_1_mean],
-                rank_mean = [rank_mean],
+                bound_ratio_mean = [bound_ratio_mean],
+                norm_0_ratio_mean = [norm_0_ratio_mean],
+                norm_1_ratio_mean = [norm_1_ratio_mean],
+                rank_ratio_mean = [rank_ratio_mean],
                 time_mean = [time_mean]
             )
 
             append!(df, result)
 
-            empty!(norm_0_list)
-            empty!(norm_1_list)
-            empty!(rank_list)
+            empty!(bound_ratio_list)
+            empty!(norm_0_ratio_list)
+            empty!(norm_1_ratio_list)
+            empty!(rank_ratio_list)
             empty!(time_list)
 
             GC.gc()
