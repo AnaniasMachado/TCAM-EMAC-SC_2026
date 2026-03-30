@@ -67,6 +67,7 @@ for i in range(1, 6):
             H_norm_1 = matrix_vec_1_norm(H)
             runtime = end_time - start_time
         else:
+            print("TimeLimit: Could not solve instance within the time limit.")
             min_unsolvable_m = m
     instance_results = {
         "m": m,

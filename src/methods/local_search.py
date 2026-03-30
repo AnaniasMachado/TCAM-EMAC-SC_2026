@@ -47,7 +47,8 @@ def local_search_procedure_maragal(exp, solutions_folder, problem, instance, met
 
     save_path = f"{solutions_folder}/LS/problem_{problem}_m_{m}_n_{n}_d_{d}"
 
-    success = eng.call_local_search_procedure_maragal(instance, r, m, n, method, save_path, hatA_flag, float(time_limit), nargout=1)
+    # success = eng.call_local_search_procedure_maragal(instance, r, m, n, method, save_path, hatA_flag, float(time_limit), nargout=1)
+    success = eng.ls_maragal(instance, r, m, n, method, save_path, hatA_flag, float(time_limit), nargout=1)
 
     eng.quit()
 
