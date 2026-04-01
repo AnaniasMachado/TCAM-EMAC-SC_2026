@@ -273,6 +273,9 @@ function success = ls_maragal(A_path, r, m, n, funcName, savePath, hatA_flag, ti
                 error('Function not recognized.');
         end
 
+        % Saves resulting matrix in the specified path
+        save(savePath, 'H');
+
         break;
     end
 end
