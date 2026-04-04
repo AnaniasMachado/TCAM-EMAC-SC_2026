@@ -1,18 +1,12 @@
-function success = ls_maragal(A_path, r, m, n, funcName, savePath, hatA_flag, time_limit)
+function success = ls_general(A_path, r, m, n, funcName, savePath, hatA_flag, time_limit)
 
     success = true;
 
     %% Load file
-    data = load(A_path);
+    A = load(A_path);
 
-    if isfield(data, 'Problem')
-        Problem = data.Problem;
-
-        if isfield(Problem, 'A')
-            A = Problem.A;
-        else
-            error('Field A not found inside Problem');
-        end
+    if isfield(A, 'A')
+        A = A.A;
     else
         error('Field Problem not found in .mat file');
     end
@@ -28,7 +22,7 @@ function success = ls_maragal(A_path, r, m, n, funcName, savePath, hatA_flag, ti
 
     t0 = tic;
 
-    % addpath('src/methods/local_search/nsub');
+    addpath('../methods/local_search/nsub');
     [R,C,time] = nsub(A,r);
 
     while true

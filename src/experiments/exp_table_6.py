@@ -8,11 +8,11 @@ from ..utility import *
 from ..methods.local_search import *
 
 problems = ["P123", "P1Sym"]
-problem = problems[0]
+problem = problems[1]
 
 column_names = ["m", "n", "r", "d", "||A||_0", "||A^+||_0", "||A^+||_1", "||H||_0" , "||H||_1", "time"]
 
-exp = "table_5"
+exp = "table_6"
 time_limit = 86400
 
 matrices_folder = f"./instances/{exp}"
@@ -47,7 +47,7 @@ for i in range(1, 6):
     r = matrix_rank(A)
     d = matrix_vec_0_norm(A) / (m * n)
     d = int(d * 100)
-    hatA_flag = 0
+    hatA_flag = 1
     if m < min_unsolvable_m:
 
         if hatA_flag:

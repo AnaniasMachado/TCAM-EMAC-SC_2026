@@ -12,15 +12,16 @@ problem = problems[1]
 column_names = ["m", "n", "r", "d", "||A||_0", "||A^+||_0", "||A^+||_1", "||H||_0" , "||H||_1", "time"]
 
 exp = "table_4"
+time_limit = 86400
 
 matrices_folder = f"./instances/{exp}"
 results_folder = f"./results/{exp}"
 solutions_folder = f"./solutions/{exp}"
 
 methods = {
-    "P123": "LSFI_Det_P3",
-    "P1" : "LSFI_Det",
-    "P1Sym" : "LSFI_Det_Symmetric"
+    "P123": "LSLAFI_Det_P3",
+    "P1" : "LSLAFI_Det",
+    "P1Sym" : "LSLAFI_Det_Symmetric"
 }
 method = methods[problem]
 
@@ -36,6 +37,8 @@ H_norm_1_list = []
 time_list = []
 
 count = 0
+min_unsolvable_m = np.inf
+
 for instance in instances:
     print(f"Solving for matrix: {instance}")
     count += 1
@@ -46,26 +49,38 @@ for instance in instances:
 
     if hatA_flag:
         A = A.T @ A
+        r = matrix_rank(A)
 
     A_MP = np.linalg.pinv(A)
 
-    start_time = time.time()
-    H = local_search_procedure(exp, solutions_folder, problem, instance, method, hatA_flag)
-    end_time = time.time()
+    if m < min_unsolvable_m:
+        start_time = time.time()
+        H = ls_general(exp, solutions_folder, problem, instance, method, hatA_flag, time_limit)
+        end_time = time.time()
 
-    A_norm_0 = matrix_vec_0_norm(A)
-    AMP_norm_0 = matrix_vec_0_norm(A_MP)
-    AMP_norm_1 = matrix_vec_1_norm(A_MP)
-    H_norm_0 = matrix_vec_0_norm(H)
-    H_norm_1 = matrix_vec_1_norm(H)
-    runtime = end_time - start_time
+        if not isinstance(H, int):
+            A_norm_0 = matrix_vec_0_norm(A)
+            AMP_norm_0 = matrix_vec_0_norm(A_MP)
+            AMP_norm_1 = matrix_vec_1_norm(A_MP)
+            H_norm_0 = matrix_vec_0_norm(H)
+            H_norm_1 = matrix_vec_1_norm(H)
+            runtime = end_time - start_time
+        else:
+            print("TimeLimit: Could not solve instance within the time limit.")
+            min_unsolvable_m = m
+            A_norm_0 = 0
+            AMP_norm_0 = 0
+            AMP_norm_1 = 0
+            H_norm_0 = 0
+            H_norm_1 = 0
+            runtime = 0
 
-    A_norm_0_list.append(A_norm_0)
-    AMP_norm_0_list.append(AMP_norm_0)
-    AMP_norm_1_list.append(AMP_norm_1)
-    H_norm_0_list.append(H_norm_0)
-    H_norm_1_list.append(H_norm_1)
-    time_list.append(runtime)
+        A_norm_0_list.append(A_norm_0)
+        AMP_norm_0_list.append(AMP_norm_0)
+        AMP_norm_1_list.append(AMP_norm_1)
+        H_norm_0_list.append(H_norm_0)
+        H_norm_1_list.append(H_norm_1)
+        time_list.append(runtime)
 
     if (count % 5 == 0):
         A_norm_0 = sum(A_norm_0_list) / len(A_norm_0_list)
