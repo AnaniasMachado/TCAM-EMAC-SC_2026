@@ -40,7 +40,7 @@ function success = ls_maragal_2(A_path, r, m, n, funcName, savePath, hatA_flag, 
             %% =====================================
             case 'LSLAFI_Det'
 
-                [normLSLAFI_Det,timeLSLAFI_Det,swaps_LSLAFI_Det,R_LSLAFI_Det,C_LSLAFI_Det] = LSLAFI_Det(A,r,m,n,R,C)
+                [normLSLAFI_Det,timeLSLAFI_Det,swaps_LSLAFI_Det,R_LSLAFI_Det,C_LSLAFI_Det] = LSLAFI_Det(A,r,m,n,R,C);
 
                 % TIME CHECK
                 if toc(t0) > time_limit
@@ -57,7 +57,7 @@ function success = ls_maragal_2(A_path, r, m, n, funcName, savePath, hatA_flag, 
             %% =====================================
             case 'LSLAFI_Det_Symmetric'
 
-                [norm,time,swaps,R,H] = LSLAFI_Det_Symmetric (A,r,m,R)
+                [norm,time,swaps,R,H] = LSLAFI_Det_Symmetric(A,r,m,R);
 
                 % TIME CHECK
                 if toc(t0) > time_limit
@@ -74,7 +74,7 @@ function success = ls_maragal_2(A_path, r, m, n, funcName, savePath, hatA_flag, 
             %% =====================================
             case 'LSLAFI_Det_P3'
 
-                [norm,time,swaps,C_out] = LSLAFI_Det_P3 (A,r,n,R,C)
+                [norm,time,swaps,C_out] = LSLAFI_Det_P3(A,r,n,R,C);
 
                 % TIME CHECK
                 if toc(t0) > time_limit
