@@ -83,11 +83,11 @@ for i = 1:5
             sol = load(savePath);
             H = sol.H;
 
-            A_norm_0 = nnz(A);
+            A_norm_0 = sum(abs(A(:)) > tol);
             AMP_norm_0 = sum(abs(A_MP(:)) > tol);
             AMP_norm_1 = sum(sum(abs(A_MP)));
-            H_norm_0 = nnz(H);
-            H_norm_1 = sum(abs(H(:)) > tol);
+            H_norm_0 = sum(abs(H(:)) > tol);
+            H_norm_1 = sum(sum(abs(H)));
 
         else
             fprintf("TimeLimit: Could not solve instance within the time limit.\n");
