@@ -1,4 +1,4 @@
-% exp_table_5.m
+% exp_table_6.m
 
 clc;
 clear;
@@ -8,11 +8,11 @@ methods_path = fullfile(current_folder, '..', 'methods');
 addpath(methods_path);
 
 problems = ["P123", "P1Sym"];
-problem = problems(1);
+problem = problems(2);
 
 column_names = ["m", "n", "r", "d", "||A||_0", "||A^+||_0", "||A^+||_1", "||H||_0", "||H||_1", "time"];
 
-exp = "table_5";
+exp = "table_6";
 time_limit = 86400;
 tol = 1e-5;
 
@@ -59,7 +59,7 @@ for i = 1:5
     d = sum(abs(A(:)) > tol) / (m * n);
     d = floor(d * 100);
 
-    hatA_flag = 0;
+    hatA_flag = 1;
 
     if m < min_unsolvable_m
 

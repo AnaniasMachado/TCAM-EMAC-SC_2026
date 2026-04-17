@@ -14,7 +14,6 @@ column_names = ["m", "n", "r", "d", "||A||_0", "||A^+||_0", "||A^+||_1", "||H||_
 
 exp = "table_5";
 time_limit = 86400;
-tol = 1e-5;
 
 matrices_folder = "../../instances/" + exp;
 results_folder = "../../results/" + exp;
@@ -54,9 +53,9 @@ for i = 1:5
     end
 
     [m, n] = size(A);
-    r = rank(A, tol);
+    r = rank(A);
 
-    d = sum(abs(A(:)) > tol) / (m * n);
+    d = nnz(A) / (m * n);
     d = floor(d * 100);
 
     hatA_flag = 0;
@@ -65,7 +64,7 @@ for i = 1:5
 
         if hatA_flag == 1
             A = A' * A;
-            r = rank(A, tol);
+            r = rank(A);
         end
 
         A_MP = pinv(A);
@@ -84,10 +83,10 @@ for i = 1:5
             H = sol.H;
 
             A_norm_0 = nnz(A);
-            AMP_norm_0 = sum(abs(A_MP(:)) > tol);
+            AMP_norm_0 = nnz(A_MP);
             AMP_norm_1 = sum(sum(abs(A_MP)));
             H_norm_0 = nnz(H);
-            H_norm_1 = sum(abs(H(:)) > tol);
+            H_norm_1 = sum(sum(abs(H)));
 
         else
             fprintf("TimeLimit: Could not solve instance within the time limit.\n");
