@@ -57,7 +57,6 @@ for i = 1:5
     r = rank(A, tol);
 
     d = sum(abs(A(:)) > tol) / (m * n);
-    d = floor(d * 100);
 
     hatA_flag = 0;
 

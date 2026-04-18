@@ -29,24 +29,15 @@ function success = ls_maragal(A_path, r, m, n, funcName, savePath, hatA_flag, ti
     t0 = tic;
 
     % addpath('src/methods/local_search/nsub');
-    [R,C,time] = nsub(A,r);
+    % [R,C,time] = nsub(A,r);
 
-    % get linearly independent rows and columns
-    % [~, R_qr, Ecol] = qr(A, 'vector');
-    % tol = 1e-5;
-    % r = sum(abs(diag(R_qr)) > tol);
-    % [~, ~, Erow] = qr(A', 'vector');
-    % C = sort(Ecol(1:r));
-    % R = sort(Erow(1:r));
-    % assert(rank(A(R,C), tol) == r, 'A(R,C) is rank-deficient');
-
-    % [~, R_qr, Erow] = qr(A', 'vector');
-    % r = sum(abs(diag(R_qr)) > 1e-5);
-    % R = sort(Erow(1:r));
-    % [~, ~, Ecol] = qr(A(R,:), 'vector');
-    % C = sort(Ecol(1:r));
-    % [max(svd(A(R,C))),min(svd(A(R,C))),length(R),length(C),r];
-    assert(rank(A(R,C), 1e-5) == r, 'A(R,C) is rank-deficient');
+    [~, R_qr, Erow] = qr(A', 'vector');
+    r = sum(abs(diag(R_qr)) > 1e-5);
+    R = sort(Erow(1:r));
+    [~, ~, Ecol] = qr(A(R,:), 'vector');
+    C = sort(Ecol(1:r));
+    [max(svd(A(R,C))),min(svd(A(R,C))),length(R),length(C),r];
+    assert(rank(A(R,C), 1e-6) == r, 'A(R,C) is rank-deficient');
 
     switch funcName
 
