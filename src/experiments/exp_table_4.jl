@@ -73,7 +73,7 @@ for n in n_values
             AMP = pinv(A)
 
             A_norm_0 = matrix_norm_0(A)
-            AMP_norm_0 = matrix_norm_0(A)
+            AMP_norm_0 = matrix_norm_0(AMP)
             AMP_norm_1 = norm(AMP, 1)
 
             data = DataInst(A, m, n, r, AMP=AMP)
